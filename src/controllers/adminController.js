@@ -52,6 +52,8 @@ controller.login = (req, response) => {
 }
 
 controller.get = (req, res) => {
+    console.log('token: '+req.token)
+    console.log('secret: '+SECRET)
     jwt.verify(req.token, SECRET, (err, authData) => {
         if (err) {
             res.json({
