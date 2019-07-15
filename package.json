@@ -4,6 +4,7 @@
   "description": "Backend for expo2019",
   "main": "app.js",
   "scripts": {
+    "start": "node src/app.js",
     "dev": "nodemon src/app.js"
   },
   "author": "stevenbdf@gmail.com",
@@ -22,7 +23,7 @@
   "devDependencies": {
     "nodemon": "1.19.1"
   },
-  "engines":{
+  "engines": {
     "node": "10.15.1"
   }
 }
