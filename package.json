@@ -1,6 +1,6 @@
 {
   "name": "expo2019",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Backend for expo2019",
   "main": "app.js",
   "scripts": {
