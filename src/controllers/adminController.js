@@ -1,6 +1,6 @@
 var bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const SECRET = '6jgMZ!EYhbsn!t3'
+const SECRET = process.env.SECRET
 const controller = {}
 
 controller.login = (req, response) => {
@@ -19,11 +19,12 @@ controller.login = (req, response) => {
                     hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
                     bcrypt.compare(clave, hash, (err, res) => {
                         if (res) {
-                            jwt.sign({ user: rows }, SECRET, (err, token) => {
+                            let user = { idAdmin: rows[0].idAdmin, correo: rows[0].correo }
+                            jwt.sign({ user }, SECRET, (err, token) => {
                                 response.json({
                                     status: 200,
                                     message: 'OK',
-                                    data: { token }
+                                    data: { idAdmin: rows[0].idAdmin, token }
                                 })
                             })
                         } else {
@@ -51,25 +52,105 @@ controller.login = (req, response) => {
 }
 
 controller.get = (req, res) => {
-    
+    jwt.verify(req.token, SECRET, (err, authData) => {
+        if (err) {
+            res.json({
+                status: 403,
+                message: 'Forbidden',
+                data: {
+                    message: 'Usuario no identificado'
+                }
+            })
+        } else {
+            req.getConnection((err, conn) => {
+                conn.query(`SELECT correo, docIdentificacionA, documentoA, nombresA, 
+                            apellidosA, telefonoA
+                            FROM admin WHERE idAdmin = ?`,
+                    [authData.user.idAdmin], (err, rows) => {
+                        if (err) {
+                            res.json({
+                                status: 500,
+                                message: 'Internal Server Error',
+                                data: err
+                            })
+                        } else {
+                            if (rows.length > 0) {
+                                res.json({
+                                    status: 200,
+                                    message: 'OK',
+                                    data: rows[0]
+                                })
+                            } else {
+                                res.json({
+                                    status: 404,
+                                    message: 'Not Found',
+                                    data: {
+                                        message: 'Administrador no encontrado'
+                                    }
+                                })
+                            }
+                        }
+                    })
+            })
+        }
+    })
 }
 
-function verifyToken(req, res, next) {
-    //Get header value
-    const bearerHeader = req.headers['authorization']
-    //Check if bearer is undefined
-    if (typeof bearerHeader !== 'undefined') {
-        //Split at the space Bearer <access_token> that space
-        const bearer = bearerHeader.split(' ')
-        //Get token from array
-        const bearerToken = bearer[1]
-        req.token = bearerToken
-        //Next middleware or function
-        next()
-    } else {
-        //Forbidden or Prohibit
-        res.sendStatus(403)
-    }
+controller.getDocumentos = (req, res) => {
+    req.getConnection((err, conn) => {
+        conn.query('SELECT * FROM tipoDocumento', (err, rows) => {
+            if (err) {
+                res.json({
+                    status: 500,
+                    message: 'Internal Server Error',
+                    data: err
+                })
+            } else {
+                res.json({
+                    status: 200,
+                    message: 'OK',
+                    data: rows
+                })
+            }
+        })
+    })
+}
+
+controller.update = (req, res) => {
+    jwt.verify(req.token, SECRET, (err, authData) => {
+        if (err) {
+            res.json({
+                status: 403,
+                message: 'Forbidden',
+                data: {
+                    message: 'Usuario no identificado'
+                }
+            })
+        } else {
+            const { nombres, apellidos, telefono, idDoc, documento, correo } = req.body
+            req.getConnection((err, conn) => {
+                conn.query(`UPDATE admin SET nombresA = ?, apellidosA = ?, telefonoA = ?,
+                            docIdentificacionA = ?, documentoA = ?, correo = ? WHERE idAdmin = ?`,
+                    [nombres, apellidos, telefono, idDoc, documento, correo, authData.user.idAdmin], (err, rows) => {
+                        if (err) {
+                            res.json({
+                                status: 500,
+                                message: 'Internal Server Error',
+                                data: err
+                            })
+                        } else {
+                            res.json({
+                                status: 200,
+                                message: 'OK',
+                                data: {
+                                    message: 'Administrador modificado correctamente'
+                                }
+                            })
+                        }
+                    })
+            })
+        }
+    })
 }
 
 module.exports = controller
