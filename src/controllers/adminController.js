@@ -1,6 +1,6 @@
 var bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const SECRET = process.env.SECRET
+const SECRET = '6jgMZ!EYhbsn!t3'
 const controller = {}
 
 controller.login = (req, response) => {
@@ -52,8 +52,6 @@ controller.login = (req, response) => {
 }
 
 controller.get = (req, res) => {
-    console.log('token: '+req.token)
-    console.log('secret: '+SECRET)
     jwt.verify(req.token, SECRET, (err, authData) => {
         if (err) {
             res.json({

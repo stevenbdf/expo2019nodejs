@@ -5,8 +5,6 @@ const morgan = require('morgan')
 const mysql = require('mysql')
 const myConnection = require('express-myconnection')
 const bodyParser = require('body-parser')
-const dotenv = require('dotenv');
-dotenv.config();
 
 //importing routes
 const CASOS_ROUTES = require('./routes/casos')
