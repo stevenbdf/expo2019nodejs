@@ -98,7 +98,7 @@ controller.get = (req, res) => {
 
 controller.getDocumentos = (req, res) => {
     req.getConnection((err, conn) => {
-        conn.query('SELECT * FROM tipoDocumento', (err, rows) => {
+        conn.query('SELECT * FROM tipodocumento', (err, rows) => {
             if (err) {
                 res.json({
                     status: 500,
