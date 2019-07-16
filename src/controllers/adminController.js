@@ -1,6 +1,7 @@
-var bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const SECRET = '6jgMZ!EYhbsn!t3'
+const utils = require('../utils/utils')
+const SECRET = utils.SECRET
 const controller = {}
 
 controller.login = (req, response) => {

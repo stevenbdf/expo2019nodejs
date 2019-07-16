@@ -11,7 +11,7 @@ const CASOS_ROUTES = require('./routes/casos')
 const ADMIN_ROUTES = require('./routes/admin')
 
 //settings
-const PORT = 8080
+const PORT = 3000
 app.set('port', process.env.PORT || PORT)
 app.use(cors())
 

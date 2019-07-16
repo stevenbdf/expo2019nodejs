@@ -2,7 +2,9 @@ const controller = {}
 
 controller.read = (req, res) => {
     req.getConnection((err, conn) => {
-        conn.query('SELECT * FROM casos', (err, rows) => {
+        conn.query(`SELECT idCaso, nombre, DATE_FORMAT(fechaFinalizacion, "%Y-%m-%d") as fechaFinalizacion,
+                    DATE_FORMAT(fechaInicio, "%Y-%m-%d") as fechaInicio, c.nombres, c.apellidos
+                    FROM casos INNER JOIN clientes c ON casos.idCliente = c.idCLiente`, (err, rows) => {
             if (err) {
                 res.json({
                     status: 500,
