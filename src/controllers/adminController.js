@@ -141,8 +141,8 @@ controller.update = (req, res) => {
                             })
                         } else {
                             res.json({
-                                status: 200,
-                                message: 'OK',
+                                status: 205,
+                                message: 'Reset Content',
                                 data: {
                                     message: 'Administrador modificado correctamente'
                                 }

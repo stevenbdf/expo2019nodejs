@@ -9,6 +9,7 @@ const bodyParser = require('body-parser')
 //importing routes
 const CASOS_ROUTES = require('./routes/casos')
 const ADMIN_ROUTES = require('./routes/admin')
+const CLIENTES_ROUTES = require('./routes/clientes')
 
 //settings
 const PORT = 3000
@@ -32,8 +33,7 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 //routes
 app.use('/casos', CASOS_ROUTES)
 app.use('/admin', ADMIN_ROUTES)
-
-//static files
+app.use('/clientes', CLIENTES_ROUTES)
 
 
 app.listen(app.get('port'), () => {
