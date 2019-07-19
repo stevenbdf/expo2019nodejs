@@ -15,10 +15,9 @@ controller.get = (req, res) => {
             })
         } else {
             req.getConnection((err, conn) => {
-                conn.query(`SELECT idCaso, nombre, DATE_FORMAT(fechaFinalizacion, "%Y-%m-%d") as fechaFinalizacion,
-                            DATE_FORMAT(fechaInicio, "%Y-%m-%d") as fechaInicio, c.nombres, c.apellidos, descripcion
-                            FROM casos INNER JOIN clientes c ON casos.idCliente = c.idCLiente
-                            WHERE idCaso = ?
+                conn.query(`SELECT idCaso, nombre, DATE_FORMAT(fechaFinalizacion, "%Y-%m-%d %H:%i:%S") as fechaFinalizacion,
+                            DATE_FORMAT(fechaInicio, "%Y-%m-%d %H:%i:%S") as fechaInicio, idCliente, descripcion
+                            FROM casos WHERE idCaso = ?
                             `, [req.params.idCaso], (err, rows) => {
                         if (err) {
                             res.json({
@@ -39,7 +38,7 @@ controller.get = (req, res) => {
                                             data: err
                                         })
                                     } else {
-                                        conn.query(`SELECT idComentario, correo, comentario, DATE_FORMAT(fecha, "%Y-%m-%d %H:%i:%S") as fecha
+                                        conn.query(`SELECT idComentario, act.idAdmin, correo, comentario, DATE_FORMAT(fecha, "%Y-%m-%d %H:%i:%S") as fecha
                                                     FROM comentarioscasos act INNER JOIN admin a
                                                     ON act.idAdmin = a.idAdmin
                                                     WHERE idCaso = ? ORDER BY idComentario DESC`, [req.params.idCaso], (err, rowsComentarios) => {
@@ -53,7 +52,7 @@ controller.get = (req, res) => {
                                                     const data = {
                                                         caso: rows[0],
                                                         actividades: rowsActividades,
-                                                        comentario: rowsComentarios
+                                                        comentarios: rowsComentarios
                                                     }
                                                     res.json({
                                                         status: 200,
@@ -171,7 +170,9 @@ controller.update = (req, res) => {
                             res.json({
                                 status: 205,
                                 message: 'Reset Content',
-                                data: rows
+                                data: {
+                                    message: 'Caso modificado correctamente.'
+                                }
                             })
                         }
                     })
@@ -216,7 +217,38 @@ controller.delete = (req, res) => {
 }
 
 controller.finishCase = (req, res) => {
-
+    jwt.verify(req.token, SECRET, (err, authData) => {
+        if (err) {
+            res.json({
+                status: 403,
+                message: 'Forbidden',
+                data: {
+                    message: 'Usuario no identificado'
+                }
+            })
+        } else {
+            const { idCaso } = req.body
+            req.getConnection((err, conn) => {
+                conn.query(`UPDATE casos SET fechaFinalizacion = (SELECT NOW()) WHERE idCaso = ?`, [idCaso], (err, rows) => {
+                    if (err) {
+                        res.json({
+                            status: 500,
+                            message: 'Internal Server Error',
+                            data: err
+                        })
+                    } else {
+                        res.json({
+                            status: 205,
+                            message: 'Reset Content',
+                            data: {
+                                message: 'Caso finalizado correctamente'
+                            }
+                        })
+                    }
+                })
+            })
+        }
+    })
 }
 
 module.exports = controller

@@ -10,6 +10,8 @@ const bodyParser = require('body-parser')
 const CASOS_ROUTES = require('./routes/casos')
 const ADMIN_ROUTES = require('./routes/admin')
 const CLIENTES_ROUTES = require('./routes/clientes')
+const ACTIVIDADES_ROUTES = require('./routes/actividades')
+const COMENTARIOS_ROUTES = require('./routes/comentarios')
 
 //settings
 const PORT = 3000
@@ -19,9 +21,9 @@ app.use(cors())
 //middlewares
 app.use(morgan('dev'))
 app.use(myConnection(mysql, {
-    host: '35.236.101.114',
+    host: 'localhost',
     user: 'root',
-    password: 'qwerty123',
+    password: '',
     port: '3306',
     database: 'mongehenriquez'
 }, 'single'))
@@ -34,6 +36,8 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 app.use('/casos', CASOS_ROUTES)
 app.use('/admin', ADMIN_ROUTES)
 app.use('/clientes', CLIENTES_ROUTES)
+app.use('/actividades', ACTIVIDADES_ROUTES)
+app.use('/comentarios', COMENTARIOS_ROUTES)
 
 
 app.listen(app.get('port'), () => {

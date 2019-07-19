@@ -9,5 +9,6 @@ router.get('/read', utils.verifyToken, casosController.read)
 router.post('/add', utils.verifyToken, casosController.add)
 router.put('/update', utils.verifyToken, casosController.update)
 router.delete('/delete', utils.verifyToken, casosController.delete)
+router.put('/finish', utils.verifyToken, casosController.finishCase)
 
 module.exports = router
