@@ -18,7 +18,7 @@ const PORT = 3000
 app.set('port', process.env.PORT || PORT)
 app.use(cors())
 
-//middlewares
+//middlewares, test
 app.use(morgan('dev'))
 app.use(myConnection(mysql, {
     host: 'localhost',
