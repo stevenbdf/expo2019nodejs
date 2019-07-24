@@ -12,6 +12,7 @@ const ADMIN_ROUTES = require('./routes/admin')
 const CLIENTES_ROUTES = require('./routes/clientes')
 const ACTIVIDADES_ROUTES = require('./routes/actividades')
 const COMENTARIOS_ROUTES = require('./routes/comentarios')
+const RESERVACIONES_ROUTES = require('./routes/reservaciones')
 
 //settings
 const PORT = 3000
@@ -38,6 +39,7 @@ app.use('/admin', ADMIN_ROUTES)
 app.use('/clientes', CLIENTES_ROUTES)
 app.use('/actividades', ACTIVIDADES_ROUTES)
 app.use('/comentarios', COMENTARIOS_ROUTES)
+app.use('/reservaciones', RESERVACIONES_ROUTES)
 
 
 app.listen(app.get('port'), () => {
