@@ -22,9 +22,9 @@ app.use(cors())
 //middlewares, test
 app.use(morgan('dev'))
 app.use(myConnection(mysql, {
-    host: 'localhost',
+    host: '35.236.101.114',
     user: 'root',
-    password: '',
+    password: 'qwerty123',
     port: '3306',
     database: 'mongehenriquez'
 }, 'single'))
