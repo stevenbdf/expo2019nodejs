@@ -7,7 +7,7 @@ const controller = {}
 controller.unlockAllAdmins = (req, res) => {
     const { SECRET_PARAM } = req.params
     if (SECRET_PARAM === SECRET) {
-        let unlockedEstado = JSON.stringify({ intentos: 0, estado: 0 })
+        let unlockedEstado = JSON.stringify({ intentos: 0, estado: 1 })
         req.getConnection((err, conn) => {
             conn.query(`UPDATE admin SET estado = ?`,
                 [unlockedEstado], (err, rows) => {
