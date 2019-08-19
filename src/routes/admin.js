@@ -8,5 +8,6 @@ router.post('/login', adminController.login)
 router.get('/get', utils.verifyToken, adminController.get)
 router.put('/update', utils.verifyToken, adminController.update)
 router.get('/getDocumentos', adminController.getDocumentos)
+router.get('/unlockAllAdmins/:SECRET_PARAM', adminController.unlockAllAdmins)
 
 module.exports = router

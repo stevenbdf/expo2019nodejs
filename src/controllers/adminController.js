@@ -4,6 +4,41 @@ const utils = require('../utils/utils')
 const SECRET = utils.SECRET
 const controller = {}
 
+controller.unlockAllAdmins = (req, res) => {
+    const { SECRET_PARAM } = req.params
+    if (SECRET_PARAM === SECRET) {
+        let unlockedEstado = JSON.stringify({ intentos: 0, estado: 0 })
+        req.getConnection((err, conn) => {
+            conn.query(`UPDATE admin SET estado = ?`,
+                [unlockedEstado], (err, rows) => {
+                    if (err) {
+                        res.json({
+                            status: 500,
+                            message: 'Internal Server Error',
+                            data: err
+                        })
+                    } else {
+                        res.json({
+                            status: 200,
+                            message: 'OK',
+                            data: {
+                                message: 'Todos los administradores han sido desbloqueados'
+                            }
+                        })
+                    }
+                })
+        })
+    } else {
+        res.json({
+            status: 403,
+            message: 'Forbidden',
+            data: {
+                message: 'Acción no autorizada'
+            }
+        })
+    }
+}
+
 controller.login = (req, response) => {
     const { correo, clave } = req.body
     req.getConnection((req, conn) => {
