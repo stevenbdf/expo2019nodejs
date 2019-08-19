@@ -9,7 +9,7 @@ controller.unlockAllAdmins = (req, res) => {
     if (SECRET_PARAM === SECRET) {
         let unlockedEstado = JSON.stringify({ intentos: 0, estado: 1 })
         req.getConnection((err, conn) => {
-            conn.query(`UPDATE admin SET estado = ?`,
+            conn.query(`UPDATE admin SET estadoAdmin = ?`,
                 [unlockedEstado], (err, rows) => {
                     if (err) {
                         res.json({
@@ -42,7 +42,7 @@ controller.unlockAllAdmins = (req, res) => {
 controller.login = (req, response) => {
     const { correo, clave } = req.body
     req.getConnection((req, conn) => {
-        conn.query('SELECT idAdmin, correo, contrasena, estado FROM admin WHERE correo = ?', [correo], (err, rows) => {
+        conn.query('SELECT idAdmin, correo, contrasena, estadoAdmin FROM admin WHERE correo = ?', [correo], (err, rows) => {
             if (err) {
                 response.json({
                     status: 500,
@@ -55,10 +55,10 @@ controller.login = (req, response) => {
                     hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
                     bcrypt.compare(clave, hash, (err, res) => {
                         if (res) {
-                            let estado = JSON.parse(rows[0].estado)
+                            let estado = JSON.parse(rows[0].estadoAdmin)
                             if (estado.estado) {
                                 let newEstado = JSON.stringify({ intentos: 0, estado: 1 })
-                                conn.query('UPDATE admin SET estado = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows2) => {
+                                conn.query('UPDATE admin SET estadoAdmin = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows2) => {
                                     if (err) {
                                         response.json({
                                             status: 500,
@@ -87,11 +87,11 @@ controller.login = (req, response) => {
                             }
                         } else {
                             const MAX_INTENTOS = 3
-                            let estado = JSON.parse(rows[0].estado)
+                            let estado = JSON.parse(rows[0].estadoAdmin)
                             estado.intentos++
                             if (estado.intentos >= MAX_INTENTOS) {
                                 let newEstado = JSON.stringify({ intentos: estado.intentos, estado: 0 })
-                                conn.query('UPDATE admin SET estado = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows) => {
+                                conn.query('UPDATE admin SET estadoAdmin = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows) => {
                                     if (err) {
                                         response.json({
                                             status: 500,
@@ -110,7 +110,7 @@ controller.login = (req, response) => {
                                 })
                             } else {
                                 let newEstado = JSON.stringify({ intentos: estado.intentos, estado: 1 })
-                                conn.query('UPDATE admin SET estado = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows) => {
+                                conn.query('UPDATE admin SET estadoAdmin = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows) => {
                                     if (err) {
                                         response.json({
                                             status: 500,
