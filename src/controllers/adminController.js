@@ -7,7 +7,7 @@ const controller = {}
 controller.login = (req, response) => {
     const { correo, clave } = req.body
     req.getConnection((req, conn) => {
-        conn.query('SELECT idAdmin, correo, contrasena FROM admin WHERE correo = ?', [correo], (err, rows) => {
+        conn.query('SELECT idAdmin, correo, contrasena, estado FROM admin WHERE correo = ?', [correo], (err, rows) => {
             if (err) {
                 response.json({
                     status: 500,
@@ -20,22 +20,80 @@ controller.login = (req, response) => {
                     hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
                     bcrypt.compare(clave, hash, (err, res) => {
                         if (res) {
-                            let user = { idAdmin: rows[0].idAdmin, correo: rows[0].correo }
-                            jwt.sign({ user }, SECRET, (err, token) => {
-                                response.json({
-                                    status: 200,
-                                    message: 'OK',
-                                    data: { idAdmin: rows[0].idAdmin, token }
+                            let estado = JSON.parse(rows[0].estado)
+                            if (estado.estado) {
+                                let newEstado = JSON.stringify({ intentos: 0, estado: 1 })
+                                conn.query('UPDATE admin SET estado = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows2) => {
+                                    if (err) {
+                                        response.json({
+                                            status: 500,
+                                            message: 'Internal Server Error',
+                                            data: err
+                                        })
+                                    } else {
+                                        let user = { idAdmin: rows[0].idAdmin, correo: rows[0].correo }
+                                        jwt.sign({ user }, SECRET, (err, token) => {
+                                            response.json({
+                                                status: 200,
+                                                message: 'OK',
+                                                data: { idAdmin: rows[0].idAdmin, token }
+                                            })
+                                        })
+                                    }
                                 })
-                            })
+                            } else {
+                                response.json({
+                                    status: 403,
+                                    message: 'Forbidden',
+                                    data: {
+                                        message: 'Tu usuario ha sido bloqueado, contactate con el administrador para poder habilitar tu cuenta de nuevo.'
+                                    }
+                                })
+                            }
                         } else {
-                            response.json({
-                                status: 403,
-                                message: 'Forbidden',
-                                data: {
-                                    message: 'Contraseña incorrecta'
-                                }
-                            })
+                            const MAX_INTENTOS = 3
+                            let estado = JSON.parse(rows[0].estado)
+                            estado.intentos++
+                            if (estado.intentos >= MAX_INTENTOS) {
+                                let newEstado = JSON.stringify({ intentos: estado.intentos, estado: 0 })
+                                conn.query('UPDATE admin SET estado = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows) => {
+                                    if (err) {
+                                        response.json({
+                                            status: 500,
+                                            message: 'Internal Server Error',
+                                            data: err
+                                        })
+                                    } else {
+                                        response.json({
+                                            status: 403,
+                                            message: 'Forbidden',
+                                            data: {
+                                                message: 'Contraseña incorrecta. Tu usuario ha sido bloqueado, contactate con el administrador para poder habilitar tu cuenta de nuevo.'
+                                            }
+                                        })
+                                    }
+                                })
+                            } else {
+                                let newEstado = JSON.stringify({ intentos: estado.intentos, estado: 1 })
+                                conn.query('UPDATE admin SET estado = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows) => {
+                                    if (err) {
+                                        response.json({
+                                            status: 500,
+                                            message: 'Internal Server Error',
+                                            data: err
+                                        })
+                                    } else {
+
+                                        response.json({
+                                            status: 403,
+                                            message: 'Forbidden',
+                                            data: {
+                                                message: 'Contraseña incorrecta tienes ' + (MAX_INTENTOS - estado.intentos) + ' intentos restantes. Antes de que se bloquee tu usuario'
+                                            }
+                                        })
+                                    }
+                                })
+                            }
                         }
                     })
                 } else {
