@@ -22,10 +22,10 @@ app.use(cors())
 //middlewares, test
 app.use(morgan('dev'))
 app.use(myConnection(mysql, {
-    host: '35.236.101.114',
-    user: 'root',
-    password: 'qwerty123',
-    port: '3306',
+    host: '34.70.125.18',
+    user: 'mongeHenriquezUser',
+    password: '6jgMZ!EYhbsn!t3',
+    port: '3305',
     database: 'mongehenriquez'
 }, 'single'))
 app.use(bodyParser.json())       // to support JSON-encoded bodies
