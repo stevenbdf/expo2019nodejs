@@ -42,7 +42,7 @@ controller.unlockAllAdmins = (req, res) => {
 controller.login = (req, response) => {
     const { correo, clave } = req.body
     req.getConnection((req, conn) => {
-        conn.query('SELECT idAdmin, correo, contrasena, estadoAdmin FROM admin WHERE correo = ?', [correo], (err, rows) => {
+        conn.query('SELECT idAdmin, correo, contrasena, autenticacion FROM admin WHERE correo = ?', [correo], (err, rows) => {
             if (err) {
                 response.json({
                     status: 500,
@@ -51,14 +51,18 @@ controller.login = (req, response) => {
                 })
             } else {
                 if (rows.length > 0) {
+                    // contraseña base
                     let hash = rows[0].contrasena
+                    // contraseña para node
                     hash = hash.replace(/^\$2y(.+)$/i, '$2a$1');
+                    // funcion para comprar contraseña
                     bcrypt.compare(clave, hash, (err, res) => {
+                        // correcto
                         if (res) {
-                            let estado = JSON.parse(rows[0].estadoAdmin)
+                            let estado = JSON.parse(rows[0].autenticacion)
                             if (estado.estado) {
-                                let newEstado = JSON.stringify({ intentos: 0, estado: 1 })
-                                conn.query('UPDATE admin SET estadoAdmin = ? WHERE correo  = ?', [newEstado, rows[0].correo], (err, rows2) => {
+                                let newEstado = JSON.stringify(estado)
+                                conn.query('UPDATE admin SET autenticacion = ? WHERE correo  = ?', [newEstado, rows[0].correo], err => {
                                     if (err) {
                                         response.json({
                                             status: 500,
