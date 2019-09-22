@@ -61,6 +61,8 @@ controller.login = (req, response) => {
                         if (res) {
                             let estado = JSON.parse(rows[0].autenticacion)
                             if (estado.estado) {
+                                estado.estado = 1
+                                estado.intentos = 0
                                 let newEstado = JSON.stringify(estado)
                                 conn.query('UPDATE admin SET autenticacion = ? WHERE correo  = ?', [newEstado, rows[0].correo], err => {
                                     if (err) {
