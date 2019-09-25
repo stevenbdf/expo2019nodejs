@@ -140,8 +140,8 @@ controller.login = (req, response) => {
                     })
                 } else {
                     response.json({
-                        status: 403,
-                        message: 'Forbidden',
+                        status: 404,
+                        message: 'Not found',
                         data: {
                             message: 'Correo inexistente'
                         }
